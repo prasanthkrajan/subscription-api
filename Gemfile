@@ -32,10 +32,21 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
+
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
+  gem 'rubocop', '~> 0.47.1', require: false
+  gem 'rails-erd'
+  gem 'dotenv-rails'
+  gem 'pry'
+  gem 'better_errors'
+  gem 'binding_of_caller'
   gem 'rspec-rails', '~> 3.5'
+  gem 'factory_girl'
+  gem 'faker', :git => 'https://github.com/stympy/faker.git', :branch => 'master'
+end
+
+group :test do
+  gem 'database_cleaner'
 end
 
 group :development do

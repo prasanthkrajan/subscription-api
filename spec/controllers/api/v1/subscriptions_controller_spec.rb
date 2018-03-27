@@ -22,40 +22,40 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
     it 'should redirect to update subcription path if status is billed' do 
       params = {
         msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: Constants::PaymentProvider::LISTED_PROVIDERS.sample,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
         amount: Faker::Number.decimal(Random.rand(4)),
         transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        status: Constants::SubscriptionStatus::BILLED,
-        plan_code: Constants::PlanType::LISTED_TYPES.sample
+        status: SubscriptionStatus::BILLED,
+        plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      response.should redirect_to (update_subscription_path, method: :post)
+      response.should redirect_to (update_subscription_path)
     end
 
     it 'should redirect to trial subcription path if status is trial' do 
       params = {
         msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: Constants::PaymentProvider::LISTED_PROVIDERS.sample,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
         amount: Faker::Number.decimal(Random.rand(4)),
         transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        status: Constants::SubscriptionStatus::TRIAL
-        plan_code: Constants::PlanType::LISTED_TYPES.sample
+        status: SubscriptionStatus::TRIAL,
+        plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      response.should redirect_to (trial_subscription_path, method: :post)
+      response.should redirect_to (trial_subscription_path)
     end
 
     it 'should redirect to cancel subscription path is status is cancelled' do 
       params = {
         msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: Constants::PaymentProvider::LISTED_PROVIDERS.sample,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
         amount: Faker::Number.decimal(Random.rand(4)),
         transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        status: Constants::SubscriptionStatus::CANCELLED,
-        plan_code: Constants::PlanType::LISTED_TYPES.sample
+        status: SubscriptionStatus::CANCELLED,
+        plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      response.should redirect_to (cancel_subscription_path, method: :post)
+      response.should redirect_to (cancel_subscription_path)
     end
   end
 

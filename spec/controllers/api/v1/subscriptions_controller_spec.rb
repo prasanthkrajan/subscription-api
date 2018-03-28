@@ -13,7 +13,9 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       }
       get :callback, params
       expect(response).to have_http_status(422)
-      expect(response['error']).to eq('status missing')
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('status missing')
     end
 
     it 'should throw error when status is invalid' do 
@@ -27,7 +29,9 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       }
       get :callback, params
       expect(response).to have_http_status(422)
-      expect(response['error']).to eq('status invalid')
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('status invalid')
     end
 
     it 'should redirect to update subcription path if status is billed' do 

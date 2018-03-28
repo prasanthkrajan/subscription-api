@@ -4,8 +4,8 @@ module SubscriptionStatus
   CANCELLED = 'cancelled'
 
   LISTED_STATUSES = [
-                  BILLED,
-                  TRIAL,
-                  CANCELLED
-                 ]
+                      BILLED,
+                      TRIAL,
+                      CANCELLED
+                    ]
 end

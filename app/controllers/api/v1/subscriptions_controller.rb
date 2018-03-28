@@ -1,4 +1,8 @@
 class Api::V1::SubscriptionsController < API::BaseController
+  def callback
+    
+  end
+
   def update
   end
 
@@ -6,8 +10,5 @@ class Api::V1::SubscriptionsController < API::BaseController
   end
 
   def cancel
-  end
-
-  def callback
   end
 end

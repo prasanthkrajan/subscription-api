@@ -3,21 +3,32 @@ require "rails_helper"
 
 RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
   describe 'GET callback' do 
-=begin
     it 'should throw error when status is missing' do 
       params = {
         msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: Constants::PaymentProvider::LISTED_PROVIDERS.sample,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
         amount: Faker::Number.decimal(Random.rand(4)),
         transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        plan_code: Constants::PlanType::LISTED_TYPES.sample
+        plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
+      expect(response).to have_http_status(422)
+      expect(response['error']).to eq('status missing')
     end
 
-    it 'should throw error when status in invalid' do 
+    it 'should throw error when status is invalid' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: Faker::Lorem.characters(Random.rand(3)),
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      expect(response['error']).to eq('status invalid')
     end
-=end
 
     it 'should redirect to update subcription path if status is billed' do 
       params = {
@@ -29,7 +40,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      response.should redirect_to (update_subscription_path)
+      expect(response).to redirect_to(update_subscription_path)
     end
 
     it 'should redirect to trial subcription path if status is trial' do 
@@ -42,7 +53,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      response.should redirect_to (trial_subscription_path)
+      expect(response).to redirect_to(trial_subscription_path)
     end
 
     it 'should redirect to cancel subscription path is status is cancelled' do 
@@ -55,7 +66,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      response.should redirect_to (cancel_subscription_path)
+      expect(response).to redirect_to(cancel_subscription_path)
     end
   end
 

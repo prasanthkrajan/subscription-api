@@ -34,48 +34,6 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(parsed_response['message']).to eq('status invalid')
     end
 
-    it 'should redirect to update subcription path if status is billed' do 
-      params = {
-        msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
-        amount: Faker::Number.decimal(Random.rand(4)),
-        transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        status: SubscriptionStatus::BILLED,
-        plan_code: PlanType::LISTED_TYPES.sample
-      }
-      get :callback, params
-      expect(response).to redirect_to(update_subscription_path)
-    end
-
-    it 'should redirect to trial subcription path if status is trial' do 
-      params = {
-        msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
-        amount: Faker::Number.decimal(Random.rand(4)),
-        transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        status: SubscriptionStatus::TRIAL,
-        plan_code: PlanType::LISTED_TYPES.sample
-      }
-      get :callback, params
-      expect(response).to redirect_to(trial_subscription_path)
-    end
-
-    it 'should redirect to cancel subscription path is status is cancelled' do 
-      params = {
-        msisdn: Faker::Lorem.characters(Random.rand(20)),
-        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
-        amount: Faker::Number.decimal(Random.rand(4)),
-        transaction_id: Faker::Lorem.characters(Random.rand(20)),
-        status: SubscriptionStatus::CANCELLED,
-        plan_code: PlanType::LISTED_TYPES.sample
-      }
-      get :callback, params
-      expect(response).to redirect_to(cancel_subscription_path)
-    end
-  end
-
-
-  describe 'POST update_subscription' do 
     it 'should throw error when amount is missing' do 
       params = {
         msisdn: Faker::Lorem.characters(Random.rand(20)),
@@ -168,6 +126,50 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(parsed_response['status']).to eq('error')
       expect(parsed_response['message']).to eq('plan_code invalid')
     end
+
+    it 'should redirect to update subcription path if status is billed' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::BILLED,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to redirect_to(update_subscription_path)
+    end
+
+    it 'should redirect to trial subcription path if status is trial' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::TRIAL,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to redirect_to(trial_subscription_path)
+    end
+
+    it 'should redirect to cancel subscription path is status is cancelled' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::CANCELLED,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to redirect_to(cancel_subscription_path)
+    end
+  end
+
+
+  describe 'POST update_subscription' do 
+    
 
     #it 'should throw error when transaction is already processed' do 
     #end

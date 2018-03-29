@@ -1,23 +1,16 @@
 module CustomErrorHandler
-  class InvalidParam
+  class InvalidParamChecker
     class << self
-      def raise_error(param_name)
-        {
-          status: 'error',
-          message: "#{param_name} invalid"
-        }
-      end
-
-      def params_confirmed_invalid?(param)
-        case param
+      def check_and_return(key,value)
+        case key
         when 'status'
-          met_invalid_requirement_for_status?(param)
+          return key if met_invalid_requirement_for_status?(value)
         when 'amount'
-          met_invalid_requirement_for_amount?(param)
+          return key if met_invalid_requirement_for_amount?(value)
         when 'payment_provider'
-          met_invalid_requirement_for_payment_provider?(param)
+          return key if met_invalid_requirement_for_payment_provider?(value)
         when 'plan_code'
-          met_invalid_requirement_for_plan_code?(param)
+          return key if met_invalid_requirement_for_plan_code?(value)
         end
       end
 

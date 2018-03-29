@@ -74,36 +74,108 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
     end
   end
 
-=begin
+
   describe 'POST update_subscription' do 
     it 'should throw error when amount is missing' do 
-    end
-
-    it 'should throw error when amount is less than 0' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::BILLED,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('amount missing')
     end
 
     it 'should throw error when amount is invalid' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.negative(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::CANCELLED,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('amount invalid')
     end
 
     it 'should throw error when payment provider is missing' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::BILLED,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('payment_provider missing')
     end
 
     it 'should throw error when payment provider is not recognized' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: Faker::Lorem.characters(Random.rand(3)),
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::CANCELLED,
+        plan_code: PlanType::LISTED_TYPES.sample
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('payment_provider invalid')
     end
 
     it 'should throw error when plan code is missing' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::BILLED
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('plan_code missing')
     end
 
     it 'should throw error when plan code is invalid' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::TRIAL,
+        plan_code: Faker::Lorem.characters(Random.rand(3))
+      }
+      get :callback, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('plan_code invalid')
     end
 
-    it 'should throw error when transaction is already processed' do 
-    end
+    #it 'should throw error when transaction is already processed' do 
+    #end
 
-    it 'should display a success message when subscription is successfully updated' do 
-    end
+    #it 'should display a success message when subscription is successfully updated' do 
+    #end
   end
-
+=begin
   describe 'POST cancel_subscription' do 
     it 'should throw error when payment provider is missing' do 
     end

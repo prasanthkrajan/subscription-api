@@ -1,7 +1,6 @@
 class Api::V1::SubscriptionsController < API::BaseController
   def callback
-    return missing_params_error('status') unless params[:status].present?
-    return invalid_params_error('status') if SubscriptionStatus::LISTED_STATUSES.exclude?(params[:status])
+    params_validation_passed?('status')
     case params[:status]
     when SubscriptionStatus::BILLED
       redirect_to update_subscription_path
@@ -13,6 +12,7 @@ class Api::V1::SubscriptionsController < API::BaseController
   end
 
   def update
+    params_prerequisite_check('amount','payment_provider','plan_code')
   end
 
   def trial
@@ -23,11 +23,29 @@ class Api::V1::SubscriptionsController < API::BaseController
 
   private
 
-  def missing_params_error(param_name)
-    render json: {status: 'error',message: "#{param_name} missing"}, status: 422
+  def params_validation_passed?(*params)
+    params.each do |param|
+      param_missing?(param)
+      param_invalid?(param)
+    end
+    true 
   end
 
-  def invalid_params_error(param_name)
-    render json: {status: 'error',message: "#{param_name} invalid"}, status: 422
+  def missing_params_check(param)
+    missing_params_error(param) unless param.present?
+  end
+
+  def invalid_params_check(param)
+    invalid_params_error(params) if CustomErrorHandler::InvalidParam.params_confirmed_invalid?(param)
+  end
+
+  def missing_params_error(param)
+    render json: CustomErrorHandler::MissingParam.raise_error(param), status: 422
+    return false
+  end
+
+  def invalid_params_error(param)
+    render json: CustomErrorHandler::InvalidParam.raise_error(param), status: 422
+    return false
   end
 end

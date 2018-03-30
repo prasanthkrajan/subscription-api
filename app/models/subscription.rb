@@ -77,21 +77,26 @@ class Subscription < ActiveRecord::Base
                 next_billing_date: nil)
   end
 
-  def trigger_transaction_renew_callback(params)
-    Transaction.create(subscription_id: self.id,
-                       amount: params['amount'],
-                       payment_provider: params['payment_provider'],
-                       status: params['status'],
-                       transaction_ref: params['transaction_id'])
+  module Callbacks
+    def trigger_transaction_renew_callback(params)
+      Transaction.create(subscription_id: self.id,
+                         amount: params['amount'],
+                         payment_provider: params['payment_provider'],
+                         status: params['status'],
+                         transaction_ref: params['transaction_id'])
+    end
+
+    def trigger_transaction_zero_amount_callback(params)
+      Transaction.create(subscription_id: self.id,
+                         amount: 0,
+                         payment_provider: params['payment_provider'],
+                         status: params['status'],
+                         transaction_ref: params['transaction_id'])
+    end
   end
 
-  def trigger_transaction_zero_amount_callback(params)
-    Transaction.create(subscription_id: self.id,
-                       amount: 0,
-                       payment_provider: params['payment_provider'],
-                       status: params['status'],
-                       transaction_ref: params['transaction_id'])
-  end
+  include Callbacks
+  
 
   def set_user_account_to_premium
     user.update(account_type: AccountType::PREMIUM)

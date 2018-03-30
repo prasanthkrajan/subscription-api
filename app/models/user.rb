@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  has_one :subscription
+  has_one :subscription, dependent: :destroy
 
   def account_type_premium?
     account_type == AccountType::PREMIUM

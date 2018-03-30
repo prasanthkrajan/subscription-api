@@ -28,6 +28,20 @@ module CustomErrorHandler
           message: "Previous subscription still active"
         }
       end
+
+      def subscription_already_cancelled_error
+        {
+          status: 'error',
+          message: "Subscription already cancelled"
+        }
+      end
+
+      def subscription_already_under_trial_error
+        {
+          status: 'error',
+          message: "Previous subscription still under trial"
+        }
+      end
     end
   end
 end

@@ -3,15 +3,28 @@ class Subscription < ActiveRecord::Base
   has_many :transactions
 
 
-  def still_active?
+  def active?
     return false unless end_date.present?
     end_date.future? && status == SubscriptionStatus::ACTIVE
+  end
+
+  def cancelled?
+    status == SubscriptionStatus::CANCELLED && user.account_type_free?
+  end
+
+  def trial?
+    status == SubscriptionStatus::TRIAL && user.account_type_new?
   end
 
   def renew_billing(params)
     update_billing_cycle(params)
     set_user_account_to_premium unless user.account_type_premium?
-    trigger_renew_callback(params)
+    trigger_transaction_renew_callback(params)
+  end
+
+  def set_to_trial(params)
+    update_subscription_to_trial(params)
+    trigger_transaction_trial_callback(params)
   end
 
   private
@@ -39,13 +52,28 @@ class Subscription < ActiveRecord::Base
     self.update(start_date: cycle_start_date,
                 end_date: cycle_end_date(params['plan_code']),
                 plan_code: params['plan_code'],
-                status: PlanType::ACTIVE,
+                status: SubscriptionStatus::ACTIVE,
                 next_billing_date: cycle_end_date(params['plan_code']) + 1.day)
   end
 
-  def trigger_renew_callback(params)
+  def update_subscription_to_trial(params)
+    self.update(start_date: cycle_start_date,
+                end_date: cycle_end_date(params['plan_code']),
+                plan_code: params['plan_code'],
+                status: SubscriptionStatus::TRIAL)
+  end
+
+  def trigger_transaction_renew_callback(params)
     Transaction.create(subscription_id: self.id,
                        amount: params['amount'],
+                       payment_provider: params['payment_provider'],
+                       status: params['status'],
+                       transaction_ref: params['transaction_id'])
+  end
+
+  def trigger_transaction_trial_callback(params)
+    Transaction.create(subscription_id: self.id,
+                       amount: 0,
                        payment_provider: params['payment_provider'],
                        status: params['status'],
                        transaction_ref: params['transaction_id'])

@@ -227,7 +227,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(response).to have_http_status(422)
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['status']).to eq('error')
-      expect(parsed_response['message']).to eq('cancelled subscription cannot be set as trial')
+      expect(parsed_response['message']).to eq('Subscription already cancelled')
     end
     
     it 'should throw error when an active subscription is set to trial' do 
@@ -245,7 +245,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(response).to have_http_status(422)
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['status']).to eq('error')
-      expect(parsed_response['message']).to eq('active subscription cannot be set as trial')
+      expect(parsed_response['message']).to eq('Previous subscription still active')
     end
 
     it 'should throw error when an already trial subscription is set to trial' do 
@@ -263,7 +263,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(response).to have_http_status(422)
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['status']).to eq('error')
-      expect(parsed_response['message']).to eq('trial subscription cannot be set as trial')
+      expect(parsed_response['message']).to eq('Previous subscription still under trial')
     end
 
     it 'should display a success message when a subscription is successfully set as trial' do 
@@ -279,7 +279,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(response).to have_http_status(200)
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['status']).to eq('success')
-      expect(parsed_response['message']).to eq('Subscription successfully updated')
+      expect(parsed_response['message']).to eq('Subscription successfully set to trial')
       expect(parsed_response['subscription']).to eq(subscription.to_json)
     end
   end

@@ -4,6 +4,7 @@ class Api::V1::SubscriptionsController < API::BaseController
   before_action :check_if_transaction_processed, only: :callback
   before_action :set_variables, except: :callback
   before_action :check_if_previous_subscription_still_active, only: :update
+  before_action :check_if_subscription_can_set_trial, only: :trial
 
   def callback
     case params[:status]
@@ -21,10 +22,15 @@ class Api::V1::SubscriptionsController < API::BaseController
     @subscription.reload
     @message = 'Subscription successfully updated'
     @status = 'success'
-    render :update, status: 200
+    render :subscription, status: 200
   end
 
   def trial
+    @subscription.set_to_trial(params)
+    @subscription.reload
+    @message = 'Subscription successfully set to trial'
+    @status = 'success'
+    render :subscription, status: 200
   end
 
   def cancel
@@ -48,6 +54,14 @@ class Api::V1::SubscriptionsController < API::BaseController
     def previous_subscription_active_error
       render json: CustomErrorHandler::ErrorMessage.previous_subscription_active_error, status: 422
     end
+
+    def subscription_already_cancelled_error
+      render json: CustomErrorHandler::ErrorMessage.subscription_already_cancelled_error, status: 422
+    end
+
+    def subscription_already_under_trial_error
+      render json: CustomErrorHandler::ErrorMessage.subscription_already_under_trial_error, status: 422
+    end
   end
 
   module Validation
@@ -66,7 +80,13 @@ class Api::V1::SubscriptionsController < API::BaseController
     end
 
     def check_if_previous_subscription_still_active
-      return previous_subscription_active_error if @subscription.still_active?
+      return previous_subscription_active_error if @subscription.active?
+    end
+
+    def check_if_subscription_can_set_trial
+      return subscription_already_cancelled_error if @subscription.cancelled?
+      return previous_subscription_active_error if @subscription.active?
+      return subscription_already_under_trial_error if @subscription.trial?
     end
   end
 

@@ -1,0 +1,14 @@
+user_one:
+  id: 1
+  msisdn: MS123
+  account_type: new
+
+user_two:
+  id: 2
+  msisdn: MS456
+  account_type: premium
+  
+user_three:
+  id: 3
+  msisdn: MS789
+  account_type: new

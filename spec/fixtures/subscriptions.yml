@@ -1,0 +1,16 @@
+subscription_one:
+  id: 1
+  user_id: user_one.id 
+  start_date: Date.today - 2.months
+  end_date: Date.today - 2.months + 1.month
+  plan_code: monthly
+  status: active
+
+subscription_two:
+  id: 2
+  user_id: user_three.id 
+  start_date: Date.today
+  end_date: Date.today + 1.month
+  plan_code: monthly
+  status: active
+  

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180327104003) do
+ActiveRecord::Schema.define(version: 20180329091743) do
 
   create_table "subscriptions", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20180327104003) do
     t.string   "plan_code",  limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.string   "status",     limit: 255
   end
 
   add_index "subscriptions", ["user_id"], name: "index_subscriptions_on_user_id", using: :btree
@@ -31,14 +32,16 @@ ActiveRecord::Schema.define(version: 20180327104003) do
     t.string   "status",           limit: 255
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false
+    t.string   "transaction_ref",  limit: 255
   end
 
   add_index "transactions", ["subscription_id"], name: "index_transactions_on_subscription_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "msisdn",     limit: 255
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.string   "msisdn",       limit: 255
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.string   "account_type", limit: 255
   end
 
   add_foreign_key "subscriptions", "users"

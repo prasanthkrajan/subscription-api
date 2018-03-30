@@ -14,6 +14,20 @@ module CustomErrorHandler
           message: "#{param_name} invalid"
         }
       end
+
+      def transaction_already_processed_error
+        {
+          status: 'error',
+          message: "Transaction already processed"
+        }
+      end
+
+      def previous_subscription_active_error
+        {
+          status: 'error',
+          message: "Previous subscription still active"
+        }
+      end
     end
   end
 end

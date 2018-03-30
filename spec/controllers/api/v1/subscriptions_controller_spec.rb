@@ -2,6 +2,7 @@ require "spec_helper"
 require "rails_helper" 
 
 RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
+  fixtures :all
   describe 'GET callback' do 
     it 'should throw error when status is missing' do 
       params = {
@@ -127,6 +128,9 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(parsed_response['message']).to eq('plan_code invalid')
     end
 
+    it 'should throw error when transaction is already processed' do 
+    end
+
     it 'should redirect to update subcription path if status is billed' do 
       params = {
         msisdn: Faker::Lorem.characters(Random.rand(20)),
@@ -169,13 +173,40 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
 
 
   describe 'POST update_subscription' do 
-    
+    it 'should throw error when previous subscription is still active' do
+      subscription = subscriptions(:subscription_two)
+      user = users(:user_three)
+      params = {
+        msisdn: user.msisdn,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::BILLED,
+        plan_code: PlanType::MONTHLY
+      }
+      post :update, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('Previous subscription still active')
+    end
 
-    #it 'should throw error when transaction is already processed' do 
-    #end
-
-    #it 'should display a success message when subscription is successfully updated' do 
-    #end
+    it 'should display a success message when subscription is successfully updated' do 
+      subscription = subscriptions(:subscription_one)
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::BILLED,
+        plan_code: PlanType::MONTHLY
+      }
+      post :update, params
+      expect(response).to have_http_status(200)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['message']).to eq('Subscription successfully updated')
+      expect(parsed_response['subscription']).to eq(subscription.to_json)
+    end
   end
 =begin
   describe 'POST cancel_subscription' do 

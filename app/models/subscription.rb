@@ -24,7 +24,13 @@ class Subscription < ActiveRecord::Base
 
   def set_to_trial(params)
     update_subscription_to_trial(params)
-    trigger_transaction_trial_callback(params)
+    trigger_transaction_zero_amount_callback(params)
+  end
+
+  def cancel_subscription(params)
+    update_subscription_to_cancel(params)
+    set_user_account_to_free unless user.account_type_free?
+    trigger_transaction_zero_amount_callback(params)
   end
 
   private
@@ -63,6 +69,14 @@ class Subscription < ActiveRecord::Base
                 status: SubscriptionStatus::TRIAL)
   end
 
+  def update_subscription_to_cancel(params)
+    self.update(start_date: nil,
+                end_date: nil,
+                plan_code: nil,
+                status: SubscriptionStatus::CANCELLED,
+                next_billing_date: nil)
+  end
+
   def trigger_transaction_renew_callback(params)
     Transaction.create(subscription_id: self.id,
                        amount: params['amount'],
@@ -71,7 +85,7 @@ class Subscription < ActiveRecord::Base
                        transaction_ref: params['transaction_id'])
   end
 
-  def trigger_transaction_trial_callback(params)
+  def trigger_transaction_zero_amount_callback(params)
     Transaction.create(subscription_id: self.id,
                        amount: 0,
                        payment_provider: params['payment_provider'],
@@ -81,5 +95,9 @@ class Subscription < ActiveRecord::Base
 
   def set_user_account_to_premium
     user.update(account_type: AccountType::PREMIUM)
+  end
+
+  def set_user_account_to_free
+    user.update(account_type: AccountType::FREE)
   end
 end

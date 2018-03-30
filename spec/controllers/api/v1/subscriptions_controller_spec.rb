@@ -283,19 +283,42 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       expect(parsed_response['subscription']).to eq(subscription.to_json)
     end
   end
-=begin
-  describe 'GET cancel_subscription' do 
-    it 'should throw error when payment provider is missing' do 
-    end
-    
-    it 'should throw error when payment provider is not recognized' do 
-    end
 
-    it 'should throw error when transaction is already processed' do 
+  describe 'GET cancel' do 
+    
+    it 'should throw error when an already cancelled subscription is set to cancel' do 
+      subscription = subscriptions(:cancelled_subscription)
+      user = users(:user_five)
+      params = {
+        msisdn: user.id,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::CANCELLED,
+        plan_code: PlanType::MONTHLY
+      }
+      get :cancel, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('Subscription already cancelled')
     end
 
     it 'should display a success message when a subscription is successfully cancelled' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::CANCELLED,
+        plan_code: PlanType::MONTHLY
+      }
+      get :cancel, params
+      expect(response).to have_http_status(200)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('success')
+      expect(parsed_response['message']).to eq('Subscription cancelled')
+      expect(parsed_response['subscription']).to eq(subscription.to_json)
     end
   end
-=end
 end

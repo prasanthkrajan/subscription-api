@@ -5,6 +5,7 @@ class Api::V1::SubscriptionsController < API::BaseController
   before_action :set_variables, except: :callback
   before_action :check_if_previous_subscription_still_active, only: :update
   before_action :check_if_subscription_can_set_trial, only: :trial
+  before_action :check_if_subscription_can_be_cancelled, only: :cancel
 
   def callback
     case params[:status]
@@ -34,6 +35,11 @@ class Api::V1::SubscriptionsController < API::BaseController
   end
 
   def cancel
+    @subscription.cancel_subscription(params)
+    @subscription.reload
+    @message = 'Subscription cancelled'
+    @status = 'success'
+    render :subscription, status: 200
   end
 
   private
@@ -81,12 +87,17 @@ class Api::V1::SubscriptionsController < API::BaseController
 
     def check_if_previous_subscription_still_active
       return previous_subscription_active_error if @subscription.active?
+      return subscription_already_cancelled_error if @subscription.cancelled?
     end
 
     def check_if_subscription_can_set_trial
       return subscription_already_cancelled_error if @subscription.cancelled?
       return previous_subscription_active_error if @subscription.active?
       return subscription_already_under_trial_error if @subscription.trial?
+    end
+
+    def check_if_subscription_can_be_cancelled
+      return subscription_already_cancelled_error if @subscription.cancelled?
     end
   end
 

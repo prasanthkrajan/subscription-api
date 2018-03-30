@@ -3,6 +3,7 @@ class Api::V1::SubscriptionsController < API::BaseController
   before_action :params_prerequisite_check, only: :callback
   before_action :check_if_transaction_processed, only: :callback
   before_action :set_variables, except: :callback
+  before_action :check_if_previous_subscription_still_active, only: :update
 
   def callback
     case params[:status]
@@ -16,8 +17,11 @@ class Api::V1::SubscriptionsController < API::BaseController
   end
 
   def update
-    check_if_previous_subscription_still_active
     @subscription.renew_billing(params)
+    @subscription.reload
+    @message = 'Subscription successfully updated'
+    @status = 'success'
+    render :update, status: 200
   end
 
   def trial
@@ -75,7 +79,7 @@ class Api::V1::SubscriptionsController < API::BaseController
   end
 
   def set_user
-    @user = User.create_with(account_type: 'new').find_or_create_by(msisdn: params[:msisdn])
+    @user = User.create_with(account_type: AccountType::NEW).find_or_create_by(msisdn: params[:msisdn])
   end
 
   def set_subscription

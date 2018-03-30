@@ -10,8 +10,8 @@ class Subscription < ActiveRecord::Base
 
   def renew_billing(params)
     update_subscription_status(params)
+    set_user_account_to_premium if !user.account_type.premium?
     trigger_renew_callback(params)
-    self.reload
   end
 
   private
@@ -37,9 +37,9 @@ class Subscription < ActiveRecord::Base
 
   def update_subscription_status(params)
     self.update(start_date: cycle_start_date,
-               end_date: cycle_end_date(params['plan_code']),
-               plan_code: params['plan_code'],
-               status: PlanType::ACTIVE)
+                end_date: cycle_end_date(params['plan_code']),
+                plan_code: params['plan_code'],
+                status: PlanType::ACTIVE)
   end
 
   def trigger_renew_callback(params)
@@ -47,6 +47,10 @@ class Subscription < ActiveRecord::Base
                        amount: params['amount'],
                        payment_provider: params['payment_provider'],
                        status: params['status'],
-                       transaction_ref: params['transaction_ref'])
+                       transaction_ref: params['transaction_id'])
+  end
+
+  def set_user_account_to_premium
+    user.update(account_type: AccountType::PREMIUM)
   end
 end

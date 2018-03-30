@@ -204,6 +204,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
       post :update, params
       expect(response).to have_http_status(200)
       parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('success')
       expect(parsed_response['message']).to eq('Subscription successfully updated')
       expect(parsed_response['subscription']).to eq(subscription.to_json)
     end

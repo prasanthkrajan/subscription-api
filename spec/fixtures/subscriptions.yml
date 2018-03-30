@@ -2,7 +2,7 @@ subscription_one:
   id: 1
   user_id: user_one.id 
   start_date: Date.today - 2.months
-  end_date: Date.today - 2.months + 1.month
+  end_date: Date.today - 1.month
   plan_code: monthly
   status: active
 
@@ -14,3 +14,21 @@ subscription_two:
   plan_code: monthly
   status: active
   
+
+cancelled_subscription:
+  id: 3
+  user_id: user_five.id
+  start_date: Date.today - 6.months
+  end_date: Date.today - 5.months
+  plan_code: monthly
+  status: cancelled 
+  next_billing_date: null
+
+trial_subscription:
+  id: 4
+  user_id: user_six.id
+  start_date: Date.today
+  end_date: Date.today + 1.month
+  plan_code: monthly
+  status: trial
+  next_billing_date: null

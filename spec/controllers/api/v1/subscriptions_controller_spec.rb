@@ -3,6 +3,7 @@ require "rails_helper"
 
 RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
   fixtures :all
+  
   describe 'GET callback' do 
     it 'should throw error when status is missing' do 
       params = {
@@ -172,7 +173,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
   end
 
 
-  describe 'POST update_subscription' do 
+  describe 'GET update' do 
     it 'should throw error when previous subscription is still active' do
       subscription = subscriptions(:subscription_two)
       user = users(:user_three)
@@ -184,7 +185,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         status: SubscriptionStatus::BILLED,
         plan_code: PlanType::MONTHLY
       }
-      post :update, params
+      get :update, params
       expect(response).to have_http_status(422)
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['status']).to eq('error')
@@ -201,7 +202,80 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         status: SubscriptionStatus::BILLED,
         plan_code: PlanType::MONTHLY
       }
-      post :update, params
+      get :update, params
+      expect(response).to have_http_status(200)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('success')
+      expect(parsed_response['message']).to eq('Subscription successfully updated')
+      expect(parsed_response['subscription']).to eq(subscription.to_json)
+    end
+  end
+
+  describe 'GET trial' do 
+    it 'should throw error when a cancelled subscription is set to trial' do 
+      subscription = subscriptions(:cancelled_subscription)
+      user = users(:user_five)
+      params = {
+        msisdn: user.id,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::TRIAL,
+        plan_code: PlanType::MONTHLY
+      }
+      get :trial, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('cancelled subscription cannot be set as trial')
+    end
+    
+    it 'should throw error when an active subscription is set to trial' do 
+      subscription = subscriptions(:subscription_two)
+      user = users(:user_five)
+      params = {
+        msisdn: user.id,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::TRIAL,
+        plan_code: PlanType::MONTHLY
+      }
+      get :trial, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('active subscription cannot be set as trial')
+    end
+
+    it 'should throw error when an already trial subscription is set to trial' do 
+      subscription = subscriptions(:trial_subscription)
+      user = users(:user_five)
+      params = {
+        msisdn: user.id,
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::TRIAL,
+        plan_code: PlanType::MONTHLY
+      }
+      get :trial, params
+      expect(response).to have_http_status(422)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['status']).to eq('error')
+      expect(parsed_response['message']).to eq('trial subscription cannot be set as trial')
+    end
+
+    it 'should display a success message when a subscription is successfully set as trial' do 
+      params = {
+        msisdn: Faker::Lorem.characters(Random.rand(20)),
+        payment_provider: PaymentProvider::LISTED_PROVIDERS.sample,
+        amount: Faker::Number.decimal(Random.rand(4)),
+        transaction_id: Faker::Lorem.characters(Random.rand(20)),
+        status: SubscriptionStatus::TRIAL,
+        plan_code: PlanType::MONTHLY
+      }
+      get :trial, params
       expect(response).to have_http_status(200)
       parsed_response = JSON.parse(response.body)
       expect(parsed_response['status']).to eq('success')
@@ -210,7 +284,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
     end
   end
 =begin
-  describe 'POST cancel_subscription' do 
+  describe 'GET cancel_subscription' do 
     it 'should throw error when payment provider is missing' do 
     end
     

@@ -12,3 +12,19 @@ user_three:
   id: 3
   msisdn: MS789
   account_type: new
+
+
+user_four:
+  id: 4
+  msisdn: MS10
+  account_type: trial
+
+user_five: 
+  id: 5
+  msisdn: MS11
+  account_type: free
+
+user_six:
+  id: 6
+  msisdn: MS12
+  account_type: new

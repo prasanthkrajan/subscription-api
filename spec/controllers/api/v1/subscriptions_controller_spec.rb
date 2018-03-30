@@ -142,7 +142,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      expect(response).to redirect_to(update_subscription_path)
+      expect(response.redirect_url).to match(%r{^http://test.host/subscriptions/update(\?|$)})
     end
 
     it 'should redirect to trial subcription path if status is trial' do 
@@ -155,7 +155,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      expect(response).to redirect_to(trial_subscription_path)
+      expect(response.redirect_url).to match(%r{^http://test.host/subscriptions/trial(\?|$)})
     end
 
     it 'should redirect to cancel subscription path is status is cancelled' do 
@@ -168,7 +168,7 @@ RSpec.describe Api::V1::SubscriptionsController, :type => :controller do
         plan_code: PlanType::LISTED_TYPES.sample
       }
       get :callback, params
-      expect(response).to redirect_to(cancel_subscription_path)
+      expect(response.redirect_url).to match(%r{^http://test.host/subscriptions/cancel(\?|$)})
     end
   end
 

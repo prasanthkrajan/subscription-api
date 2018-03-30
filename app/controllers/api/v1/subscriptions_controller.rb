@@ -73,8 +73,8 @@ class Api::V1::SubscriptionsController < API::BaseController
   module Validation
     def params_prerequisite_check
       @expected_params = CustomErrorHandler::ParamValidation.new(params)
-      return missing_param_error(@expected_params.missing_param) if @expected_params.missing?
-      return invalid_param_error(@expected_params.invalid_param) if @expected_params.invalid?
+      return missing_param_error(@expected_params.missing_param) if @expected_params.param_missing?
+      return invalid_param_error(@expected_params.invalid_param) if @expected_params.param_invalid?
     end
 
     def existing_transaction

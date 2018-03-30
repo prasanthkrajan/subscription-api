@@ -5,11 +5,11 @@ module CustomErrorHandler
       @expected_params = expected_params
     end
 
-    def missing?
+    def param_missing?
       missing_params.present?
     end
 
-    def invalid?
+    def param_invalid?
       invalid_params.present?
     end
 

@@ -10,7 +10,7 @@ class Subscription < ActiveRecord::Base
 
   def renew_billing(params)
     update_subscription_status(params)
-    set_user_account_to_premium if !user.account_type.premium?
+    set_user_account_to_premium unless user.account_type_premium?
     trigger_renew_callback(params)
   end
 

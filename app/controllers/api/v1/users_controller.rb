@@ -1,6 +1,6 @@
 class Api::V1::UsersController < API::BaseController
   def show
-    @user = User.find_by(params[:msisdn])
+    @user = User.find_by(msisdn: params[:msisdn])
     @subscription = @user.subscription
     @transactions = @subscription.transactions
     @message = 'User Info Retrieved'
